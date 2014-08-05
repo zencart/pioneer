@@ -86,40 +86,36 @@ sudo sed -i "s/;date.timezone.*/date.timezone = UTC/" /etc/php5/cli/php.ini
 
 # Install Nginx & PHP-FPM
 
-#apt-get install -y nginx php5-fpm
+apt-get install -y nginx php5-fpm
 
-#rm /etc/nginx/sites-enabled/default
-#rm /etc/nginx/sites-available/default
-#service nginx restart
+rm /etc/nginx/sites-enabled/default
+rm /etc/nginx/sites-available/default
+service nginx restart
 
 # Setup Some PHP-FPM Options
 
-#sed -i "s/error_reporting = .*/error_reporting = E_ALL/" /etc/php5/fpm/php.ini
-#sed -i "s/display_errors = .*/display_errors = On/" /etc/php5/fpm/php.ini
-#sed -i "s/;cgi.fix_pathinfo=1/cgi.fix_pathinfo=0/" /etc/php5/fpm/php.ini
-#sed -i "s/memory_limit = .*/memory_limit = 512M/" /etc/php5/fpm/php.ini
-#sed -i "s/;date.timezone.*/date.timezone = UTC/" /etc/php5/fpm/php.ini
+sed -i "s/error_reporting = .*/error_reporting = E_ALL/" /etc/php5/fpm/php.ini
+sed -i "s/display_errors = .*/display_errors = On/" /etc/php5/fpm/php.ini
+sed -i "s/;cgi.fix_pathinfo=1/cgi.fix_pathinfo=0/" /etc/php5/fpm/php.ini
+sed -i "s/memory_limit = .*/memory_limit = 512M/" /etc/php5/fpm/php.ini
+sed -i "s/;date.timezone.*/date.timezone = UTC/" /etc/php5/fpm/php.ini
 
 # Set The Nginx & PHP-FPM User
 
-#sed -i "s/user www-data;/user vagrant;/" /etc/nginx/nginx.conf
-#sed -i "s/# server_names_hash_bucket_size.*/server_names_hash_bucket_size 64;/" /etc/nginx/nginx.conf
+sed -i "s/user www-data;/user vagrant;/" /etc/nginx/nginx.conf
+sed -i "s/# server_names_hash_bucket_size.*/server_names_hash_bucket_size 64;/" /etc/nginx/nginx.conf
 
-#sed -i "s/user = www-data/user = vagrant/" /etc/php5/fpm/pool.d/www.conf
-#sed -i "s/group = www-data/group = vagrant/" /etc/php5/fpm/pool.d/www.conf
+sed -i "s/user = www-data/user = vagrant/" /etc/php5/fpm/pool.d/www.conf
+sed -i "s/group = www-data/group = vagrant/" /etc/php5/fpm/pool.d/www.conf
 
-#sed -i "s/;listen\.owner.*/listen.owner = vagrant/" /etc/php5/fpm/pool.d/www.conf
-#sed -i "s/;listen\.group.*/listen.group = vagrant/" /etc/php5/fpm/pool.d/www.conf
-#sed -i "s/;listen\.mode.*/listen.mode = 0666/" /etc/php5/fpm/pool.d/www.conf
+sed -i "s/;listen\.owner.*/listen.owner = vagrant/" /etc/php5/fpm/pool.d/www.conf
+sed -i "s/;listen\.group.*/listen.group = vagrant/" /etc/php5/fpm/pool.d/www.conf
+sed -i "s/;listen\.mode.*/listen.mode = 0666/" /etc/php5/fpm/pool.d/www.conf
 
-#service nginx restart
-#service php5-fpm restart
+service nginx restart
+service php5-fpm restart
 
-# FOR NOW, DISABLE NGINX AND PHPFPM, so apache can prevail
-#service nginx stop
-#sudo update-rc.d -f nginx disable
-#sudo update-rc.d -f php5-fpm disable
-
+printf "\nHABITAT=\"zencart\"\n" | tee -a /home/vagrant/.profile
 
 # Add Vagrant User To WWW-Data
 
@@ -132,10 +128,16 @@ groups vagrant
 apt-get install -y apache2 libapache2-mod-php5 apache2-utils
 sed -i "s/export APACHE_RUN_USER=www-data/export APACHE_RUN_USER=vagrant/" /etc/apache2/envvars
 sed -i "s/export APACHE_RUN_GROUP=www-data/export APACHE_RUN_GROUP=vagrant/" /etc/apache2/envvars
+printf "\nexport HABITAT=zencart\n" | tee -a /etc/apache2/envvars
 rm -Rf /var/www/html
 ln -s /home/vagrant/web /var/www/html
 a2enmod ssl
 service apache2 restart
+
+#turn off apache so nginx can run
+service apache2 stop
+sudo update-rc.d -f apache2 disable
+
 
 # Install MySQL
 
@@ -171,6 +173,7 @@ apt-get -y clean
 ### Compress Image Size
 # Zero out the free space to save space in the final image
 # (this may take a minute to run, at the end of the script, and may look like it's hanging; just be patient)
+echo "Clearing empty space ..."
 dd if=/dev/zero of=/EMPTY bs=1M
 rm -f /EMPTY
 
