@@ -166,6 +166,26 @@ service mysql restart
 
 cp /vagrant/aliases /home/vagrant/.bash_aliases
 
+# Install phpMyAdmin
+debconf-set-selections <<< "phpmyadmin phpmyadmin/dbconfig-install boolean false"
+debconf-set-selections <<< "phpmyadmin phpmyadmin/reconfigure-webserver multiselect apache2"
+debconf-set-selections <<< "phpmyadmin phpmyadmin/app-password-confirm password zencart"
+debconf-set-selections <<< "phpmyadmin phpmyadmin/mysql/admin-pass password zencart"
+debconf-set-selections <<< "phpmyadmin phpmyadmin/password-confirm password zencart"
+debconf-set-selections <<< "phpmyadmin phpmyadmin/setup-password password zencart"
+debconf-set-selections <<< "phpmyadmin phpmyadmin/database-type select mysql"
+debconf-set-selections <<< "phpmyadmin phpmyadmin/mysql/app-pass password zencart"
+debconf-set-selections <<< "dbconfig-common dbconfig-common/mysql/app-pass password zencart"
+debconf-set-selections <<< "dbconfig-common dbconfig-common/mysql/app-pass password"
+debconf-set-selections <<< "dbconfig-common dbconfig-common/password-confirm password zencart"
+debconf-set-selections <<< "dbconfig-common dbconfig-common/app-password-confirm password zencart"
+debconf-set-selections <<< "dbconfig-common dbconfig-common/app-password-confirm password zencart"
+debconf-set-selections <<< "dbconfig-common dbconfig-common/password-confirm password zencart"
+ # Handy for debugging. clear answers phpmyadmin: echo PURGE | debconf-communicate phpmyadmin
+apt-get -y install phpmyadmin
+#ln -s /usr/share/phpmyadmin /usr/share/nginx/html
+
+echo "Removing unneeded packages"
 # Keep things pristine
 apt-get -y autoremove
 apt-get -y clean
