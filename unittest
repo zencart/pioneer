@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+
+function showHelp {
+echo "usage: unittest dir"
+echo "       Where dir is the same as a sites/dir directive in your yaml configuration"
+echo "       Do unittest --help for more details"
+}
+
+if [ "$1" == "" ]; then 
+  showHelp
+  exit 1
+fi
+if [ "$1" == "--help" ]; then 
+showHelp
+echo ""
+echo ""
+exit 0
+fi
+
+SCRIPT_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+CPATH="$SCRIPT_PATH/composer"
+
+INCPATH="`php -i | grep include_path | awk 'BEGIN{ FS=" => " }{ printf($NF) }'`:$CPATH"
+cd ../web/$1
+php -d include_path=${INCPATH} "$SCRIPT_PATH/composer/vendor/bin/phpunit" -c testFramework/unittests/phpunit.xml

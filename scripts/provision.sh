@@ -35,6 +35,10 @@ make re2c supervisor unattended-upgrades whois vim tig nfs-common
 
 ln -sf /usr/share/zoneinfo/UTC /etc/localtime
 
+# Write Bash Aliases
+
+cp /vagrant/aliases /home/vagrant/.bash_aliases
+
 # Install PHP Stuff
 
 apt-get install -y php5-cli php5-dev php-pear \
@@ -65,6 +69,7 @@ cp /vagrant/.gitignore_global /home/vagrant/.gitignore_global
 git config --global --add core.excludesfile ~/.gitignore_global
 mkdir ~/tools
 cd ~/tools
+cp /vagrant/unittest .
 mkdir composer
 cd composer
 cp /vagrant/composer.json .
@@ -99,6 +104,9 @@ sed -i "s/display_errors = .*/display_errors = On/" /etc/php5/fpm/php.ini
 sed -i "s/;cgi.fix_pathinfo=1/cgi.fix_pathinfo=0/" /etc/php5/fpm/php.ini
 sed -i "s/memory_limit = .*/memory_limit = 512M/" /etc/php5/fpm/php.ini
 sed -i "s/;date.timezone.*/date.timezone = UTC/" /etc/php5/fpm/php.ini
+sudo sed -i "s/post_max_size = .*/post_max_size = 512M/" /etc/php5/fpm/php.ini
+sudo sed -i "s/upload_max_filesize = .*/upload_max_filesize = 512M/" /etc/php5/fpm/php.ini
+sudo sed -i "s/html_errors = .*/html_errors = Off/" /etc/php5/fpm/php.ini
 
 # Set The Nginx & PHP-FPM User
 
@@ -112,10 +120,10 @@ sed -i "s/;listen\.owner.*/listen.owner = vagrant/" /etc/php5/fpm/pool.d/www.con
 sed -i "s/;listen\.group.*/listen.group = vagrant/" /etc/php5/fpm/pool.d/www.conf
 sed -i "s/;listen\.mode.*/listen.mode = 0666/" /etc/php5/fpm/pool.d/www.conf
 
+printf "\nHABITAT=\"zencart\"\n" | tee -a /home/vagrant/.profile
+
 service nginx restart
 service php5-fpm restart
-
-printf "\nHABITAT=\"zencart\"\n" | tee -a /home/vagrant/.profile
 
 # Add Vagrant User To WWW-Data
 
@@ -135,10 +143,14 @@ ln -s /home/vagrant/web /var/www/html
 a2enmod ssl rewrite
 service apache2 restart
 
-#turn off apache so nginx can run
-#service apache2 stop
-#sudo update-rc.d -f apache2 disable
-
+# Set apache2-php settings
+sudo sed -i "s/error_reporting = .*/error_reporting = E_ALL/" /etc/php5/apache2/php.ini
+sudo sed -i "s/display_errors = .*/display_errors = On/" /etc/php5/apache2/php.ini
+sudo sed -i "s/memory_limit = .*/memory_limit = 512M/" /etc/php5/apache2/php.ini
+sudo sed -i "s/;date.timezone.*/date.timezone = UTC/" /etc/php5/apache2/php.ini
+sudo sed -i "s/post_max_size = .*/post_max_size = 512M/" /etc/php5/apache2/php.ini
+sudo sed -i "s/upload_max_filesize = .*/upload_max_filesize = 512M/" /etc/php5/apache2/php.ini
+sudo sed -i "s/html_errors = .*/html_errors = Off/" /etc/php5/apache2/php.ini
 
 # Install MySQL
 
@@ -163,11 +175,8 @@ mysql --user="root" --password="zencart" -e "FLUSH PRIVILEGES;"
 
 service mysql restart
 
-# Write Bash Aliases
-
-cp /vagrant/aliases /home/vagrant/.bash_aliases
-
 # Install phpMyAdmin
+
 debconf-set-selections <<< "phpmyadmin phpmyadmin/dbconfig-install boolean false"
 debconf-set-selections <<< "phpmyadmin phpmyadmin/reconfigure-webserver multiselect apache2"
 debconf-set-selections <<< "phpmyadmin phpmyadmin/app-password-confirm password zencart"
@@ -186,7 +195,7 @@ debconf-set-selections <<< "dbconfig-common dbconfig-common/password-confirm pas
 apt-get -y install phpmyadmin
 #ln -s /usr/share/phpmyadmin /usr/share/nginx/html
 
-echo "Removing unneeded packages"
+echo "Removing unneeded packages ..."
 # Keep things pristine
 apt-get -y autoremove
 apt-get -y clean
@@ -197,4 +206,4 @@ apt-get -y clean
 echo "Clearing empty space ..."
 dd if=/dev/zero of=/EMPTY bs=1M
 rm -f /EMPTY
-
+echo "Done."
