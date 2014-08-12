@@ -131,12 +131,13 @@ sed -i "s/export APACHE_RUN_GROUP=www-data/export APACHE_RUN_GROUP=vagrant/" /et
 printf "\nexport HABITAT=zencart\n" | tee -a /etc/apache2/envvars
 rm -Rf /var/www/html
 ln -s /home/vagrant/web /var/www/html
-a2enmod ssl
+#echo "<?php phpinfo(); " > /home/vagrant/web/index.php
+a2enmod ssl rewrite
 service apache2 restart
 
 #turn off apache so nginx can run
-service apache2 stop
-sudo update-rc.d -f apache2 disable
+#service apache2 stop
+#sudo update-rc.d -f apache2 disable
 
 
 # Install MySQL
