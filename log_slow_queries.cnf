@@ -1,4 +1,7 @@
 [mysqld]
-log_slow_queries	= /home/vagrant/mysql-slow.log
+log_slow_queries	= /home/vagrant/habitat/logs/mysql-slow.log
 long_query_time = 1
 log-queries-not-using-indexes
+
+log_error = /home/vagrant/habitat/logs/mysql-error.log
+

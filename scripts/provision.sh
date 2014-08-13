@@ -1,5 +1,11 @@
 #!/usr/bin/env bash
 
+printf "\nHABITAT=\"zencart\"\n" | tee -a /home/vagrant/.profile
+
+# Make logs accessible
+mkdir /home/vagrant/habitat/
+mkdir /home/vagrant/habitat/logs/
+
 # Update Package List
 
 apt-get update
@@ -88,6 +94,7 @@ sudo sed -i "s/error_reporting = .*/error_reporting = E_ALL/" /etc/php5/cli/php.
 sudo sed -i "s/display_errors = .*/display_errors = On/" /etc/php5/cli/php.ini
 sudo sed -i "s/memory_limit = .*/memory_limit = 512M/" /etc/php5/cli/php.ini
 sudo sed -i "s/;date.timezone.*/date.timezone = UTC/" /etc/php5/cli/php.ini
+sudo sed -i "s/;error_log = php_errors.log/error_log = \/home\/vagrant\/habitat\/logs\/php_errors.log/" /etc/php5/cli/php.ini
 
 # Install Nginx & PHP-FPM
 
@@ -107,11 +114,14 @@ sed -i "s/;date.timezone.*/date.timezone = UTC/" /etc/php5/fpm/php.ini
 sudo sed -i "s/post_max_size = .*/post_max_size = 512M/" /etc/php5/fpm/php.ini
 sudo sed -i "s/upload_max_filesize = .*/upload_max_filesize = 512M/" /etc/php5/fpm/php.ini
 sudo sed -i "s/html_errors = .*/html_errors = Off/" /etc/php5/fpm/php.ini
+sudo sed -i "s/;error_log = php_errors.log/error_log = \/home\/vagrant\/habitat\/logs\/php_errors.log/" /etc/php5/fpm/php.ini
+sudo sed -i "s/error_log = .*/error_log = \/home\/vagrant\/habitat\/logs\/php5-fpm.log/" /etc/php5/fpm/php-fpm.conf
 
 # Set The Nginx & PHP-FPM User
 
 sed -i "s/user www-data;/user vagrant;/" /etc/nginx/nginx.conf
 sed -i "s/# server_names_hash_bucket_size.*/server_names_hash_bucket_size 64;/" /etc/nginx/nginx.conf
+sed -i "s/\/var\/log\/nginx/\/home\/vagrant\/habitat\/logs\/nginx/" /etc/nginx/nginx.conf
 
 sed -i "s/user = www-data/user = vagrant/" /etc/php5/fpm/pool.d/www.conf
 sed -i "s/group = www-data/group = vagrant/" /etc/php5/fpm/pool.d/www.conf
@@ -119,8 +129,6 @@ sed -i "s/group = www-data/group = vagrant/" /etc/php5/fpm/pool.d/www.conf
 sed -i "s/;listen\.owner.*/listen.owner = vagrant/" /etc/php5/fpm/pool.d/www.conf
 sed -i "s/;listen\.group.*/listen.group = vagrant/" /etc/php5/fpm/pool.d/www.conf
 sed -i "s/;listen\.mode.*/listen.mode = 0666/" /etc/php5/fpm/pool.d/www.conf
-
-printf "\nHABITAT=\"zencart\"\n" | tee -a /home/vagrant/.profile
 
 service nginx restart
 service php5-fpm restart
@@ -136,6 +144,7 @@ groups vagrant
 apt-get install -y apache2 libapache2-mod-php5 apache2-utils
 sed -i "s/export APACHE_RUN_USER=www-data/export APACHE_RUN_USER=vagrant/" /etc/apache2/envvars
 sed -i "s/export APACHE_RUN_GROUP=www-data/export APACHE_RUN_GROUP=vagrant/" /etc/apache2/envvars
+sed -i "s/export APACHE_LOG_DIR=\/var\/log\/apache2$SUFFIX/export APACHE_LOG_DIR=\/home\/vagrant\/habitat\/logs\/apache2$SUFFIX/" /etc/apache2/envvars
 printf "\nexport HABITAT=zencart\n" | tee -a /etc/apache2/envvars
 rm -Rf /var/www/html
 ln -s /home/vagrant/web /var/www/html
@@ -151,6 +160,7 @@ sudo sed -i "s/;date.timezone.*/date.timezone = UTC/" /etc/php5/apache2/php.ini
 sudo sed -i "s/post_max_size = .*/post_max_size = 512M/" /etc/php5/apache2/php.ini
 sudo sed -i "s/upload_max_filesize = .*/upload_max_filesize = 512M/" /etc/php5/apache2/php.ini
 sudo sed -i "s/html_errors = .*/html_errors = Off/" /etc/php5/apache2/php.ini
+sudo sed -i "s/;error_log = php_errors.log/error_log = \/home\/vagrant\/habitat\/logs\/php_errors.log/" /etc/php5/apache2/php.ini
 
 # Install MySQL
 
@@ -193,6 +203,8 @@ debconf-set-selections <<< "dbconfig-common dbconfig-common/app-password-confirm
 debconf-set-selections <<< "dbconfig-common dbconfig-common/password-confirm password zencart"
  # Handy for debugging. clear answers phpmyadmin: echo PURGE | debconf-communicate phpmyadmin
 apt-get -y install phpmyadmin
+sudo sed -i "s/$cfg\['UploadDir'] = '';/$cfg['UploadDir'] = '\/home\/vagrant\/habitat';/" /etc/phpmyadmin/config.inc.php
+sudo sed -i "s/$cfg\['SaveDir'] = '';/$cfg['SaveDir'] = '\/home\/vagrant\/habitat';/" /etc/phpmyadmin/config.inc.php
 #ln -s /usr/share/phpmyadmin /usr/share/nginx/html
 
 echo "Removing unneeded packages ..."
