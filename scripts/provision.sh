@@ -2,9 +2,9 @@
 
 printf "\nHABITAT=\"zencart\"\n" | tee -a /home/vagrant/.profile
 
-# Make logs accessible
-mkdir /home/vagrant/habitat/
-mkdir /home/vagrant/habitat/logs/
+# Set up some folders for syncing
+mkdir -pv /home/vagrant/habitat/logs/
+mkdir -pv /home/vagrant/web
 
 # Update Package List
 
@@ -145,9 +145,11 @@ apt-get install -y apache2 libapache2-mod-php5 apache2-utils
 sed -i "s/export APACHE_RUN_USER=www-data/export APACHE_RUN_USER=vagrant/" /etc/apache2/envvars
 sed -i "s/export APACHE_RUN_GROUP=www-data/export APACHE_RUN_GROUP=vagrant/" /etc/apache2/envvars
 sed -i "s/export APACHE_LOG_DIR=\/var\/log\/apache2$SUFFIX/export APACHE_LOG_DIR=\/home\/vagrant\/habitat\/logs\/apache2$SUFFIX/" /etc/apache2/envvars
+printf "\nServerName habitat.local\n" | tee -a /etc/apache2/apache2.conf
 printf "\nexport HABITAT=zencart\n" | tee -a /etc/apache2/envvars
 rm -Rf /var/www/html
 ln -s /home/vagrant/web /var/www/html
+mkdir /home/vagrant/habitat/logs/apache2
 #echo "<?php phpinfo(); " > /home/vagrant/web/index.php
 a2enmod ssl rewrite
 service apache2 restart
