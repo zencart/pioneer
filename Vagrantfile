@@ -5,8 +5,10 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |vconfig|
 
 	# Configure The Box
 	config.vm.box = "ubuntu/trusty64"
-	config.vm.hostname = "habitat.dev"
+	config.vm.hostname = "habitat"
+
 #config.vm.box_check_update = false
+
 	config.vm.network :private_network, ip: "192.168.33.10"
 
 	config.vm.provider "virtualbox" do |vb|
