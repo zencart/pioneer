@@ -19,7 +19,7 @@ fi
 
 SCRIPT_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 CPATH="$SCRIPT_PATH/composer"
-
+export HABITAT=true;
 INCPATH="`php -i | grep include_path | awk 'BEGIN{ FS=" => " }{ printf($NF) }'`:$CPATH"
 cd ../web/$1
 php -d include_path=${INCPATH} "$SCRIPT_PATH/composer/vendor/bin/phpunit" -c testFramework/unittests/phpunit.xml
