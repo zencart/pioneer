@@ -15,11 +15,16 @@ apt-get upgrade -y
 # Install Some PPAs
 
 apt-get install -y software-properties-common
-
 apt-add-repository ppa:nginx/stable -y
-apt-add-repository ppa:rwky/redis -y
+#apt-add-repository ppa:rwky/redis -y
 apt-add-repository ppa:chris-lea/node.js -y
-apt-add-repository ppa:ondrej/php5 -y
+
+#PHP 5.6
+apt-add-repository ppa:ondrej/php5-5.6 -y
+#MySQL versions
+#apt-add-repository ppa:ondrej/mysql-5.6 -y
+#apt-add-repository ppa:ondrej/mysql-5.7 -y
+#apt-add-repository ppa:ondrej/mariadb-5.5 -y
 
 # Update Package Lists using added repos
 
@@ -28,7 +33,7 @@ apt-get update
 # Install Some Basic Packages
 
 apt-get install -y build-essential curl dos2unix gcc git libmcrypt4 libpcre3-dev \
-make re2c supervisor unattended-upgrades whois vim tig nfs-common
+make re2c supervisor unattended-upgrades whois vim tig nfs-common ntp
 
 # Install A Few Helpful Python Packages
 
@@ -83,9 +88,12 @@ composer install
 cd ..
 mkdir selenium
 cd selenium
-wget http://selenium-release.storage.googleapis.com/2.42/selenium-server-standalone-2.42.2.jar
-mv selenium-server-standalone-2.42.2.jar selenium-server-standalone.jar
-chmod a+x selenium-server-standalone.jar
+#wget http://selenium-release.storage.googleapis.com/2.42/selenium-server-standalone-2.42.2.jar
+#mv selenium-server-standalone-2.42.2.jar selenium-server-standalone.jar
+#chmod a+x selenium-server-standalone.jar
+cd ~
+ssh-keyscan github.com >> ~/.ssh/known_hosts
+ssh-keyscan bitbucket.org >> ~/.ssh/known_hosts
 EOF
 
 # Set Some PHP CLI Settings
@@ -133,6 +141,12 @@ sed -i "s/;listen\.mode.*/listen.mode = 0666/" /etc/php5/fpm/pool.d/www.conf
 service nginx restart
 service php5-fpm restart
 
+# Now leave nginx disabled
+service nginx stop
+sudo update-rc.d -f nginx disable
+service php5-fpm stop
+sudo update-rc.d -f php5-fpm disable
+
 # Add Vagrant User To WWW-Data
 
 usermod -a -G www-data vagrant
@@ -162,6 +176,17 @@ sudo sed -i "s/post_max_size = .*/post_max_size = 512M/" /etc/php5/apache2/php.i
 sudo sed -i "s/upload_max_filesize = .*/upload_max_filesize = 512M/" /etc/php5/apache2/php.ini
 sudo sed -i "s/html_errors = .*/html_errors = Off/" /etc/php5/apache2/php.ini
 sudo sed -i "s/;error_log = php_errors.log/error_log = \/home\/vagrant\/habitat\/php_errors.log/" /etc/php5/apache2/php.ini
+
+# Install Node
+
+apt-get install -y nodejs
+npm install -g grunt-cli
+npm install -g gulp
+npm install -g bower
+
+# Install SQLite
+
+apt-get install -y sqlite3 libsqlite3-dev
 
 # Install MySQL
 
