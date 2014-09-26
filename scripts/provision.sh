@@ -8,7 +8,7 @@ mkdir -pv /home/vagrant/web
 
 # Update Package List
 
-apt-get update
+apt-get update -y
 
 apt-get upgrade -y
 
@@ -21,6 +21,11 @@ apt-add-repository ppa:chris-lea/node.js -y
 
 #PHP 5.6
 apt-add-repository ppa:ondrej/php5-5.6 -y
+#PHP 5.5
+#apt-add-repository ppa:ondrej/php5 -y
+#PHP 5.4:
+#apt-add-repository ppa:ondrej/php5-oldstable -y
+
 #MySQL versions
 #apt-add-repository ppa:ondrej/mysql-5.6 -y
 #apt-add-repository ppa:ondrej/mysql-5.7 -y
@@ -28,7 +33,7 @@ apt-add-repository ppa:ondrej/php5-5.6 -y
 
 # Update Package Lists using added repos
 
-apt-get update
+apt-get update -y
 
 # Install Some Basic Packages
 
@@ -233,8 +238,14 @@ sudo sed -i "s/$cfg\['UploadDir'] = .*;/$cfg['UploadDir'] = '\/var\/lib\/phpmyad
 sudo sed -i "s/$cfg\['SaveDir'] = .*;/$cfg['SaveDir'] = '\/var\/lib\/phpmyadmin\/tmp';/" /etc/phpmyadmin/config.inc.php
 #ln -s /usr/share/phpmyadmin /usr/share/nginx/html
 
-echo "Removing unneeded packages ..."
+
+# Install Zend Server installer script, for developer optimization benefits (can be installed manually if developers desire)
+cp /vagrant/install_zendserver.sh /home/vagrant/
+chmod 744 /home/vagrant/install_zendserver.sh
+
 # Keep things pristine
+
+echo "Removing unneeded packages ..."
 apt-get -y autoremove
 apt-get -y clean
 
