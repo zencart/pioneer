@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+
+# Regenerate code documentation
+
+function showHelp {
+echo "This is a helper script to simplify accessing composer resources in a ZC Habitat configuration."
+echo ""
+echo "usage: generatedocs dir"
+echo "       ... where dir is the same as a sites:dir directive in your yaml configuration"
+echo ""
+}
+
+if [ "$1" == "" ]; then
+  showHelp
+  exit 1
+fi
+if [ "$1" == "--help" ]; then
+showHelp
+echo ""
+echo ""
+exit 0
+fi
+
+#determine which path we're running from and where composer is located
+UPATH="web"
+if [ ! -f "../$UPATH" ]; then
+  UPATH="../.."
+fi
+
+export HABITAT=true;
+
+SCRIPT_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+CPATH="$SCRIPT_PATH/composer"
+
+cd ../$UPATH/$1
+
+TARGET_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+INCPATH="`php -i | grep include_path | awk 'BEGIN{ FS=" => " }{ printf($NF) }'`:$CPATH"
+
+cd docs
+if [ ! -f "phpdoc.xml" -a ! -f "phpdoc.dist.xml" ]; then
+  echo "Could not find phpdoc.xml or phpdoc.dist.xml. Please place phpdoc.xml in the $1/docs/ folder and re-run. "
+  exit 1
+fi
+
+#remove old generated docs
+rm -rf $TARGET_PATH/docs/phpdocs/*
+#generate new
+php -d include_path=${INCPATH} "$SCRIPT_PATH/composer/vendor/bin/phpdoc" --force --ignore-tags "private"

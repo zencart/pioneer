@@ -85,7 +85,9 @@ cp /vagrant/.gitignore_global /home/vagrant/.gitignore_global
 git config --global --add core.excludesfile ~/.gitignore_global
 mkdir ~/tools
 cd ~/tools
-cp /vagrant/unittest .
+cp /vagrant/scripts/unittest .
+cp /vagrant/scripts/dbtest .
+cp /vagrant/scripts/generatedocs .
 mkdir composer
 cd composer
 cp /vagrant/composer.json .
