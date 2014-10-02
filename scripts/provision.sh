@@ -9,7 +9,6 @@ mkdir -pv /home/vagrant/web
 # Update Package List
 
 apt-get update -y
-
 apt-get upgrade -y
 
 # Install Some PPAs
@@ -244,6 +243,10 @@ sudo sed -i "s/$cfg\['SaveDir'] = .*;/$cfg['SaveDir'] = '\/var\/lib\/phpmyadmin\
 # Install Zend Server installer script, for developer optimization benefits (can be installed manually if developers desire)
 cp /vagrant/install_zendserver.sh /home/vagrant/
 chmod 744 /home/vagrant/install_zendserver.sh
+
+# Apply any remaining updates to packages
+apt-get update -y
+apt-get upgrade -y
 
 # Keep things pristine
 
