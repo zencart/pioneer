@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+echo "Provisioning Habitat environment ..."
+
 printf "\nHABITAT=\"zencart\"\n" | tee -a /home/vagrant/.profile
 
 # Set up some folders for syncing
@@ -58,7 +60,8 @@ cp /vagrant/aliases /home/vagrant/.bash_aliases
 
 apt-get install -y php5-cli php5-dev php-pear \
 php5-mysqlnd php5-apcu php5-json php5-curl php5-gd \
-php5-imap php5-mcrypt php5-xdebug php5-memcached
+php5-imap php5-mcrypt php5-xdebug php5-memcached \
+php5-xsl
 
 # Make MCrypt Available
 
@@ -69,6 +72,7 @@ sudo php5enmod mcrypt
 
 curl -sS https://getcomposer.org/installer | php
 mv composer.phar /usr/local/bin/composer
+crontab -e * 12 * * * /usr/local/bin/composer self-update >/dev/null 2>&1
 
 # Add Composer Global Bin To Path
 
@@ -93,7 +97,7 @@ cp /vagrant/composer.json .
 composer install
 cd ..
 mkdir selenium
-cd selenium
+#cd selenium
 #wget http://selenium-release.storage.googleapis.com/2.42/selenium-server-standalone-2.42.2.jar
 #mv selenium-server-standalone-2.42.2.jar selenium-server-standalone.jar
 #chmod a+x selenium-server-standalone.jar
