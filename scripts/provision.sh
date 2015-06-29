@@ -147,10 +147,15 @@ sed -i "s/error_reporting = .*/error_reporting = E_ALL/" /etc/php5/fpm/php.ini
 sed -i "s/display_errors = .*/display_errors = On/" /etc/php5/fpm/php.ini
 sed -i "s/;cgi.fix_pathinfo=1/cgi.fix_pathinfo=0/" /etc/php5/fpm/php.ini
 sed -i "s/memory_limit = .*/memory_limit = 512M/" /etc/php5/fpm/php.ini
+sed -i "s/upload_max_filesize = .*/upload_max_filesize = 100M/" /etc/php5/fpm/php.ini
+sed -i "s/post_max_size = .*/post_max_size = 512M/" /etc/php5/fpm/php.ini
 sed -i "s/;date.timezone.*/date.timezone = UTC/" /etc/php5/fpm/php.ini
-sudo sed -i "s/post_max_size = .*/post_max_size = 512M/" /etc/php5/fpm/php.ini
-sudo sed -i "s/upload_max_filesize = .*/upload_max_filesize = 512M/" /etc/php5/fpm/php.ini
-sudo sed -i "s/html_errors = .*/html_errors = Off/" /etc/php5/fpm/php.ini
+
+# Additional dev settings
+sed -i "s/upload_max_filesize = .*/upload_max_filesize = 512M/" /etc/php5/fpm/php.ini
+sed -i "s/html_errors = .*/html_errors = Off/" /etc/php5/fpm/php.ini
+
+# sync error logs
 sudo sed -i "s/;error_log = php_errors.log/error_log = \/home\/vagrant\/habitat\/php_errors.log/" /etc/php5/fpm/php.ini
 sudo sed -i "s/error_log = .*/error_log = \/home\/vagrant\/habitat\/php5-fpm.log/" /etc/php5/fpm/php-fpm.conf
 
