@@ -5,11 +5,7 @@
         "squizlabs/php_codesniffer": "~2",
         "satooshi/php-coveralls": "~0.6",
         "mikey179/vfsStream": "1.*",
-        "codeception/codeception": "~2.0",
-        "codeception/phpbuiltinserver": "~1.2",
-        "codeception/specify": "~0.3",
-        "codeception/verify": "~0.2",
         "phpdocumentor/phpdocumentor": "2.*",
-        "dflydev/markdown": "1.0.*"
+        "michelf/php-markdown": "*"
     }
 }
