@@ -31,7 +31,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |vconfig|
 	config.vm.network "forwarded_port", guest: 5432, host: 54320
 #	config.vm.network "forwarded_port", guest: 35729, host: 35729
 
-	config.vm.synced_folder "./", "/vagrant", disabled: true
+#	config.vm.synced_folder "./", "/vagrant", disabled: true
 
 	# Run The Base Provisioning Script
 	config.vm.provision "shell", path: "./scripts/update.sh"
