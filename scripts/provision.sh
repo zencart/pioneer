@@ -25,7 +25,7 @@ apt-add-repository ppa:ondrej/php5-5.6 -y
 #apt-add-repository ppa:ondrej/php5-oldstable -y
 
 #MySQL versions
-apt-add-repository ppa:ondrej/mysql-5.6 -y
+#apt-add-repository ppa:ondrej/mysql-5.6 -y
 #apt-add-repository ppa:ondrej/mysql-5.7 -y
 #apt-add-repository ppa:ondrej/mariadb-5.5 -y
 
