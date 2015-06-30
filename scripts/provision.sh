@@ -8,13 +8,6 @@ printf "\nHABITAT=\"zencart\"\n" | tee -a /home/vagrant/.profile
 mkdir -pv /home/vagrant/habitat/
 mkdir -pv /home/vagrant/web
 
-# Update Package List
-
-apt-get update
-
-# Update System Packages
-apt-get -y upgrade
-
 # Force Locale
 
 echo "LC_ALL=en_US.UTF-8" >> /etc/default/locale
@@ -73,9 +66,9 @@ sudo php5enmod mcrypt
 
 # Install Mailparse PECL Extension
 
-pecl install mailparse
-echo "extension=mailparse.so" > /etc/php5/mods-available/mailparse.ini
-ln -s /etc/php5/mods-available/mailparse.ini /etc/php5/cli/conf.d/20-mailparse.ini
+#pecl install mailparse
+#echo "extension=mailparse.so" > /etc/php5/mods-available/mailparse.ini
+#ln -s /etc/php5/mods-available/mailparse.ini /etc/php5/cli/conf.d/20-mailparse.ini
 
 # Install Composer
 
@@ -87,11 +80,6 @@ crontab -e * 12 * * * /usr/local/bin/composer self-update >/dev/null 2>&1
 
 printf "\nPATH=\"/home/vagrant/.composer/vendor/bin:\$PATH\"\n" | tee -a /home/vagrant/.profile
 
-# Install Laravel Envoy
-
-sudo su vagrant <<'EOF'
-/usr/local/bin/composer global require "laravel/envoy=~1.0"
-EOF
 
 # Install some code optimization tools
 # - some default gitignore values
@@ -131,89 +119,6 @@ sudo sed -i "s/;date.timezone.*/date.timezone = UTC/" /etc/php5/cli/php.ini
 # sync error logs
 sudo sed -i "s/;error_log = php_errors.log/error_log = \/home\/vagrant\/habitat\/php_errors.log/" /etc/php5/cli/php.ini
 
-# Install Nginx & PHP-FPM
-
-apt-get install -y nginx php5-fpm
-
-rm /etc/nginx/sites-enabled/default
-rm /etc/nginx/sites-available/default
-service nginx restart
-
-# Setup Some PHP-FPM Options
-
-ln -s /etc/php5/mods-available/mailparse.ini /etc/php5/fpm/conf.d/20-mailparse.ini
-
-sed -i "s/error_reporting = .*/error_reporting = E_ALL/" /etc/php5/fpm/php.ini
-sed -i "s/display_errors = .*/display_errors = On/" /etc/php5/fpm/php.ini
-sed -i "s/;cgi.fix_pathinfo=1/cgi.fix_pathinfo=0/" /etc/php5/fpm/php.ini
-sed -i "s/memory_limit = .*/memory_limit = 512M/" /etc/php5/fpm/php.ini
-sed -i "s/upload_max_filesize = .*/upload_max_filesize = 100M/" /etc/php5/fpm/php.ini
-sed -i "s/post_max_size = .*/post_max_size = 512M/" /etc/php5/fpm/php.ini
-sed -i "s/;date.timezone.*/date.timezone = UTC/" /etc/php5/fpm/php.ini
-
-# Additional dev settings
-sed -i "s/upload_max_filesize = .*/upload_max_filesize = 512M/" /etc/php5/fpm/php.ini
-sed -i "s/html_errors = .*/html_errors = Off/" /etc/php5/fpm/php.ini
-
-# sync error logs
-sudo sed -i "s/;error_log = php_errors.log/error_log = \/home\/vagrant\/habitat\/php_errors.log/" /etc/php5/fpm/php.ini
-sudo sed -i "s/error_log = .*/error_log = \/home\/vagrant\/habitat\/php5-fpm.log/" /etc/php5/fpm/php-fpm.conf
-
-# Configure xdebug for remote use
-
-echo "xdebug.remote_enable = 1" >> /etc/php5/fpm/conf.d/20-xdebug.ini
-echo "xdebug.remote_connect_back = 1" >> /etc/php5/fpm/conf.d/20-xdebug.ini
-echo "xdebug.remote_port = 9000" >> /etc/php5/fpm/conf.d/20-xdebug.ini
-echo "xdebug.max_nesting_level = 250" >> /etc/php5/fpm/conf.d/20-xdebug.ini
-
-# Copy fastcgi_params to Nginx because they broke it on the PPA
-
-cat > /etc/nginx/fastcgi_params << EOF
-fastcgi_param	QUERY_STRING		\$query_string;
-fastcgi_param	REQUEST_METHOD		\$request_method;
-fastcgi_param	CONTENT_TYPE		\$content_type;
-fastcgi_param	CONTENT_LENGTH		\$content_length;
-fastcgi_param	SCRIPT_FILENAME		\$request_filename;
-fastcgi_param	SCRIPT_NAME		\$fastcgi_script_name;
-fastcgi_param	REQUEST_URI		\$request_uri;
-fastcgi_param	DOCUMENT_URI		\$document_uri;
-fastcgi_param	DOCUMENT_ROOT		\$document_root;
-fastcgi_param	SERVER_PROTOCOL		\$server_protocol;
-fastcgi_param	GATEWAY_INTERFACE	CGI/1.1;
-fastcgi_param	SERVER_SOFTWARE		nginx/\$nginx_version;
-fastcgi_param	REMOTE_ADDR		\$remote_addr;
-fastcgi_param	REMOTE_PORT		\$remote_port;
-fastcgi_param	SERVER_ADDR		\$server_addr;
-fastcgi_param	SERVER_PORT		\$server_port;
-fastcgi_param	SERVER_NAME		\$server_name;
-fastcgi_param	HTTPS			\$https if_not_empty;
-fastcgi_param	REDIRECT_STATUS		200;
-EOF
-
-# Set The Nginx & PHP-FPM User
-
-sed -i "s/user www-data;/user vagrant;/" /etc/nginx/nginx.conf
-sed -i "s/# server_names_hash_bucket_size.*/server_names_hash_bucket_size 64;/" /etc/nginx/nginx.conf
-
-# sync error logs
-sed -i "s/\/var\/log\/nginx/\/home\/vagrant\/habitat/" /etc/nginx/nginx.conf
-
-sed -i "s/user = www-data/user = vagrant/" /etc/php5/fpm/pool.d/www.conf
-sed -i "s/group = www-data/group = vagrant/" /etc/php5/fpm/pool.d/www.conf
-
-sed -i "s/listen\.owner.*/listen.owner = vagrant/" /etc/php5/fpm/pool.d/www.conf
-sed -i "s/listen\.group.*/listen.group = vagrant/" /etc/php5/fpm/pool.d/www.conf
-sed -i "s/;listen\.mode.*/listen.mode = 0666/" /etc/php5/fpm/pool.d/www.conf
-
-service nginx restart
-service php5-fpm restart
-
-# Now leave nginx disabled
-service nginx stop
-sudo update-rc.d -f nginx disable
-service php5-fpm stop
-sudo update-rc.d -f php5-fpm disable
-
 # Add Vagrant User To WWW-Data
 
 usermod -a -G www-data vagrant
@@ -243,14 +148,6 @@ sudo sed -i "s/upload_max_filesize = .*/upload_max_filesize = 512M/" /etc/php5/a
 sudo sed -i "s/html_errors = .*/html_errors = Off/" /etc/php5/apache2/php.ini
 sudo sed -i "s/;error_log = php_errors.log/error_log = \/home\/vagrant\/habitat\/php_errors.log/" /etc/php5/apache2/php.ini
 
-
-# Install Node
-
-apt-get install -y nodejs
-/usr/bin/npm install -g grunt-cli
-/usr/bin/npm install -g gulp
-/usr/bin/npm install -g bower
-
 # Install SQLite
 
 apt-get install -y sqlite3 libsqlite3-dev
@@ -259,7 +156,7 @@ apt-get install -y sqlite3 libsqlite3-dev
 
 debconf-set-selections <<< "mysql-server mysql-server/root_password password zencart"
 debconf-set-selections <<< "mysql-server mysql-server/root_password_again password zencart"
-apt-get install -y mysql-server
+apt-get install -y mysql-server-5.6
 
 # Enable MySQL slow-query-logging
 cp /vagrant/log_slow_queries.cnf /etc/mysql/conf.d/
@@ -323,13 +220,15 @@ apt-get upgrade -y
 
 echo "Removing unneeded packages ..."
 apt-get -y autoremove
-apt-get -y clean
+
+# removed because the vagrant-cachier plugin takes care of it:
+#apt-get -y clean
 
 # Enable Swap Memory
 
-/bin/dd if=/dev/zero of=/var/swap.1 bs=1M count=1024
-/sbin/mkswap /var/swap.1
-/sbin/swapon /var/swap.1
+# /bin/dd if=/dev/zero of=/var/swap.1 bs=1M count=256
+# /sbin/mkswap /var/swap.1
+# /sbin/swapon /var/swap.1
 
 ### Compress Image Size
 # Zero out the free space to save space in the final image
