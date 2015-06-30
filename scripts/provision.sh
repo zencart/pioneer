@@ -17,9 +17,6 @@ locale-gen en_US.UTF-8
 
 apt-get install -y software-properties-common curl
 
-apt-add-repository ppa:nginx/stable -y
-apt-add-repository ppa:chris-lea/node.js -y
-
 #PHP 5.6
 apt-add-repository ppa:ondrej/php5-5.6 -y
 #PHP 5.5
@@ -28,7 +25,7 @@ apt-add-repository ppa:ondrej/php5-5.6 -y
 #apt-add-repository ppa:ondrej/php5-oldstable -y
 
 #MySQL versions
-#apt-add-repository ppa:ondrej/mysql-5.6 -y
+apt-add-repository ppa:ondrej/mysql-5.6 -y
 #apt-add-repository ppa:ondrej/mysql-5.7 -y
 #apt-add-repository ppa:ondrej/mariadb-5.5 -y
 
@@ -156,7 +153,7 @@ apt-get install -y sqlite3 libsqlite3-dev
 
 debconf-set-selections <<< "mysql-server mysql-server/root_password password zencart"
 debconf-set-selections <<< "mysql-server mysql-server/root_password_again password zencart"
-apt-get install -y mysql-server-5.6
+apt-get install -y mysql-server
 
 # Enable MySQL slow-query-logging
 cp /vagrant/log_slow_queries.cnf /etc/mysql/conf.d/
