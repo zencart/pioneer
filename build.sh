@@ -2,6 +2,8 @@
 
 # install required vagrant plugin to handle reloads during provisioning
 vagrant plugin install vagrant-reload
+# vagrant plugin to cache assets for faster generation
+vagrant plugin install vagrant-cachier
 
 # start with no machines
 vagrant destroy -f
@@ -14,4 +16,3 @@ vagrant package --base `ls ~/VirtualBox\ VMs | grep HabitatBase` --output habita
 ls -lh habitat.box
 vagrant destroy -f
 rm -rf .vagrant
-

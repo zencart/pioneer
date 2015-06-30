@@ -25,6 +25,13 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |vconfig|
 	  v.cpus = 2
 	end
 
+	if Vagrant.has_plugin?("vagrant-cachier")
+		config.cache.scope = :box
+    	config.cache.enable :apt
+    	config.cache.enable :composer
+  	end
+
+
 	# Configure Port Forwarding
 	config.vm.network "forwarded_port", guest: 80, host: 8000
 	config.vm.network "forwarded_port", guest: 3306, host: 33060
