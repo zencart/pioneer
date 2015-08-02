@@ -35,7 +35,7 @@ apt-get update
 
 # Install Some Basic Packages
 
-apt-get install -y build-essential dos2unix gcc git libmcrypt4 libpcre3-dev \
+apt-get install -y build-essential dos2unix gcc git libpcre3-dev \
 make python2.7-dev python-pip re2c supervisor unattended-upgrades whois vim \
 tig nfs-common ntp
 
@@ -55,11 +55,6 @@ php5-apcu php5-json php5-curl php5-gd \
 php5-gmp php5-imap php5-mcrypt php5-xdebug \
 php5-memcached \
 php5-xsl
-
-# Make MCrypt Available
-
-ln -s /etc/php5/conf.d/mcrypt.ini /etc/php5/mods-available
-sudo php5enmod mcrypt
 
 # Install Mailparse PECL Extension
 
@@ -98,8 +93,8 @@ composer install
 cd ..
 #mkdir selenium
 #cd selenium
-#wget http://selenium-release.storage.googleapis.com/2.42/selenium-server-standalone-2.42.2.jar
-#mv selenium-server-standalone-2.42.2.jar selenium-server-standalone.jar
+#wget http://selenium-release.storage.googleapis.com/2.47/selenium-server-standalone-2.47.1.jar
+#mv selenium-server-standalone-2.47.1.jar selenium-server-standalone.jar
 #chmod a+x selenium-server-standalone.jar
 cd ~
 ssh-keyscan github.com >> ~/.ssh/known_hosts
