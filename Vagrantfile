@@ -4,7 +4,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |vconfig|
   vconfig.vm.define :HabitatBase do |config|
 
 	# Configure The Box
-	config.vm.box = "chef/ubuntu-14.04"
+	config.vm.box = "bento/ubuntu-14.04"
 	config.vm.hostname = "habitat"
 
 	#config.vm.box_check_update = false
@@ -45,7 +45,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |vconfig|
 
 	# Run The Base Provisioning Script
 	config.vm.provision "shell", path: "./scripts/update.sh"
-	config.vm.provision :reload
+#	config.vm.provision :reload
 #	config.vm.provision "shell", path: "./scripts/vmware_tools.sh"
 #	config.vm.provision :reload
 	config.vm.provision "shell", path: "./scripts/provision.sh"
