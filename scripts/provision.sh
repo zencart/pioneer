@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+export DEBIAN_FRONTEND=noninteractive
 
 echo "Provisioning Habitat environment ..."
 
@@ -8,7 +9,15 @@ printf "\nHABITAT=\"zencart\"\n" | tee -a /home/vagrant/.profile
 mkdir -pv /home/vagrant/habitat/
 mkdir -pv /home/vagrant/web
 
+# Update Package List
+
+apt-get update
+
+# Update System Packages
+apt-get -y upgrade
+
 # Force Locale
+apt-get install -y language-pack-en
 
 echo "LC_ALL=en_US.UTF-8" >> /etc/default/locale
 locale-gen en_US.UTF-8
