@@ -4,6 +4,9 @@
 
 apt-get update
 
+#remove old default grub config
+rm /etc/default/grub
+
 # Update Grub Bootloader
 
 echo "set grub-pc/install_devices /dev/sda" | debconf-communicate
