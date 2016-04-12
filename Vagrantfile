@@ -4,7 +4,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |vconfig|
   vconfig.vm.define :HabitatBase do |config|
 
 	# Configure The Box
-	config.vm.box = "bento/ubuntu-14.04"
+	config.vm.box = "bento/ubuntu-12.04"
 	config.vm.hostname = "habitat"
 
 	#config.vm.box_check_update = false

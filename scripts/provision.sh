@@ -28,17 +28,8 @@ apt-get install -y software-properties-common curl
 
 #Ubuntu Precise 12.04 includes PHP 5.3.10 by default
 #Ubuntu Trusty 14.04 installs PHP 5.5.9 by default
-#PHP 5.6
-#apt-add-repository ppa:ondrej/php5-5.6 -y
-#PHP 5.5
-#apt-add-repository ppa:ondrej/php5 -y
-#PHP 5.4:
-#apt-add-repository ppa:ondrej/php5-oldstable -y
 
-#MySQL versions
-#apt-add-repository ppa:ondrej/mysql-5.6 -y
-#apt-add-repository ppa:ondrej/mysql-5.7 -y
-#apt-add-repository ppa:ondrej/mariadb-5.5 -y
+
 
 # Update Package Lists
 
@@ -202,6 +193,7 @@ debconf-set-selections <<< "dbconfig-common dbconfig-common/app-password-confirm
 debconf-set-selections <<< "dbconfig-common dbconfig-common/app-password-confirm password zencart"
 debconf-set-selections <<< "dbconfig-common dbconfig-common/password-confirm password zencart"
  # Handy for debugging. clear answers phpmyadmin: echo PURGE | debconf-communicate phpmyadmin
+
 apt-get -y install phpmyadmin
 sudo sed -i "s/$cfg\['UploadDir'] = .*;/$cfg['UploadDir'] = '\/var\/lib\/phpmyadmin\/tmp';/" /etc/phpmyadmin/config.inc.php
 sudo sed -i "s/$cfg\['SaveDir'] = .*;/$cfg['SaveDir'] = '\/var\/lib\/phpmyadmin\/tmp';/" /etc/phpmyadmin/config.inc.php
