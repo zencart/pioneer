@@ -26,8 +26,10 @@ locale-gen en_US.UTF-8
 
 apt-get install -y software-properties-common curl
 
+#Ubuntu Precise 12.04 includes PHP 5.3.10 by default
+#Ubuntu Trusty 14.04 installs PHP 5.5.9 by default
 #PHP 5.6
-apt-add-repository ppa:ondrej/php5-5.6 -y
+#apt-add-repository ppa:ondrej/php5-5.6 -y
 #PHP 5.5
 #apt-add-repository ppa:ondrej/php5 -y
 #PHP 5.4:
@@ -45,7 +47,8 @@ apt-get update
 # Install Some Basic Packages
 
 apt-get install -y build-essential dos2unix gcc git libpcre3-dev \
-make python2.7-dev python-pip re2c supervisor unattended-upgrades whois vim \
+make python2.7-dev python-pip re2c supervisor unattended-upgrades whois vim libnotify-bin \
+libmcrypt4 \
 tig nfs-common ntp
 
 # Set My Timezone
@@ -60,16 +63,18 @@ cp /vagrant/aliases /home/vagrant/.bash_aliases
 
 apt-get install -y php5-cli php5-dev php-pear \
 php5-mysqlnd php5-sqlite \
-php5-apcu php5-json php5-curl php5-gd \
+php5-json php5-curl php5-gd \
 php5-gmp php5-imap php5-mcrypt php5-xdebug \
 php5-memcached \
 php5-xsl
+# do this separately to accommodate older PHP versions
+apt-get install -y php5-apcu
 
-# Install Mailparse PECL Extension
+sudo sed -i "s/error_reporting = .*/error_reporting = E_ALL/" /etc/php5/cli/php.ini
+sudo sed -i "s/display_errors = .*/display_errors = On/" /etc/php5/cli/php.ini
+sudo sed -i "s/memory_limit = .*/memory_limit = 512M/" /etc/php5/cli/php.ini
+sudo sed -i "s/;date.timezone.*/date.timezone = UTC/" /etc/php5/cli/php.ini
 
-#pecl install mailparse
-#echo "extension=mailparse.so" > /etc/php5/mods-available/mailparse.ini
-#ln -s /etc/php5/mods-available/mailparse.ini /etc/php5/cli/conf.d/20-mailparse.ini
 
 # Install Composer
 
@@ -79,7 +84,7 @@ crontab -e * 12 * * * /usr/local/bin/composer self-update >/dev/null 2>&1
 
 # Add Composer Global Bin To Path
 
-printf "\nPATH=\"/home/vagrant/.composer/vendor/bin:\$PATH\"\n" | tee -a /home/vagrant/.profile
+printf "\nPATH=\"$(composer config -g home 2>/dev/null)/vendor/bin:\$PATH\"\n" | tee -a /home/vagrant/.profile
 
 
 # Install some code optimization tools
@@ -102,20 +107,14 @@ composer install
 cd ..
 #mkdir selenium
 #cd selenium
-#wget http://selenium-release.storage.googleapis.com/2.47/selenium-server-standalone-2.47.1.jar
-#mv selenium-server-standalone-2.47.1.jar selenium-server-standalone.jar
+#wget http://selenium-release.storage.googleapis.com/2.53/selenium-server-standalone-2.53.0.jar
+#mv selenium-server-standalone-2.53.0.jar selenium-server-standalone.jar
 #chmod a+x selenium-server-standalone.jar
 cd ~
 ssh-keyscan github.com >> ~/.ssh/known_hosts
 ssh-keyscan bitbucket.org >> ~/.ssh/known_hosts
 EOF
 
-# Set Some PHP CLI Settings
-
-sudo sed -i "s/error_reporting = .*/error_reporting = E_ALL/" /etc/php5/cli/php.ini
-sudo sed -i "s/display_errors = .*/display_errors = On/" /etc/php5/cli/php.ini
-sudo sed -i "s/memory_limit = .*/memory_limit = 512M/" /etc/php5/cli/php.ini
-sudo sed -i "s/;date.timezone.*/date.timezone = UTC/" /etc/php5/cli/php.ini
 
 # sync error logs
 sudo sed -i "s/;error_log = php_errors.log/error_log = \/home\/vagrant\/habitat\/php_errors.log/" /etc/php5/cli/php.ini
@@ -154,10 +153,18 @@ sudo sed -i "s/;error_log = php_errors.log/error_log = \/home\/vagrant\/habitat\
 apt-get install -y sqlite3 libsqlite3-dev
 
 # Install MySQL
-
 debconf-set-selections <<< "mysql-server mysql-server/root_password password zencart"
 debconf-set-selections <<< "mysql-server mysql-server/root_password_again password zencart"
 apt-get install -y mysql-server
+
+# Add Timezone Support To MySQL
+
+echo "Adding timezone support to MySQL ..."
+mysql_tzinfo_to_sql /usr/share/zoneinfo | mysql --user=root --password=zencart mysql
+
+# Configure MySQL Password Lifetime
+
+echo "default_password_lifetime = 0" >> /etc/mysql/my.cnf
 
 # Enable MySQL slow-query-logging
 cp /vagrant/log_slow_queries.cnf /etc/mysql/conf.d/
@@ -177,10 +184,6 @@ mysql --user="root" --password="zencart" -e "CREATE DATABASE zencart;"
 echo "MySQL restart 2"
 service mysql restart
 
-# Add Timezone Support To MySQL
-
-echo "Adding timezone support to MySQL ..."
-mysql_tzinfo_to_sql /usr/share/zoneinfo | mysql --user=root --password=zencart mysql
 
 # Install phpMyAdmin
 echo "Installing phpMyAdmin ..."
@@ -205,7 +208,7 @@ sudo sed -i "s/$cfg\['SaveDir'] = .*;/$cfg['SaveDir'] = '\/var\/lib\/phpmyadmin\
 #ln -s /usr/share/phpmyadmin /usr/share/nginx/html
 
 
-# Install Zend Server installer script, for developer optimization benefits (can be installed manually if developers desire)
+# Add Zend Server installer script, for developer optimization benefits (can be installed manually if developers desire)
 cp /vagrant/install_zendserver.sh /home/vagrant/
 chmod 744 /home/vagrant/install_zendserver.sh
 
